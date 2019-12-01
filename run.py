@@ -13,10 +13,10 @@ class PhysNet(torch.nn.Module):
         ctrldof = 1
 
         super(PhysNet, self).__init__()
-        self.fc1 = torch.nn.Linear(ctrldof + qdof * 2 + qdof, 60)
-        self.fc2 = torch.nn.Linear(60, 60)
-        self.fc3 = torch.nn.Linear(60, 60)
-        self.fc4 = torch.nn.Linear(60, qdof)
+        self.fc1 = torch.nn.Linear(ctrldof + qdof * 2 + qdof, 20)
+        self.fc2 = torch.nn.Linear(20, 20)
+        self.fc3 = torch.nn.Linear(20, 20)
+        self.fc4 = torch.nn.Linear(20, qdof)
     
     def forward(self, x):
         x = torch.tanh(self.fc1(x))
@@ -26,7 +26,7 @@ class PhysNet(torch.nn.Module):
         return x
 
 net = PhysNet()
-net.cuda()
+#net.cuda()
 print(net)
 
 input = torch.rand(1, 4)
@@ -34,18 +34,18 @@ output = torch.rand(1, 1)
 print(net(input).size())
 
 criterion = torch.nn.MSELoss(reduction="sum")
-optimizer = torch.optim.SGD(net.parameters(), lr=1e-5)
+optimizer = torch.optim.Adagrad(net.parameters(), lr=1e-2)
 
 data = run_simulation()
 
 for it in range(500):
     loss = torch.tensor(0.0)
+    optimizer.zero_grad()
     for t in range(data[:,1].size):
         output = torch.tensor([[data[t, 2]]])
         input = torch.tensor([[math.cos(data[t, 0]), math.sin(data[t, 0]), data[t, 1], data[t, 3]]])
         output_pred = net(input)
         loss += criterion(output_pred, output)
-    optimizer.zero_grad()
     loss.backward()
     optimizer.step()
     print(str(it) + " : " + str(loss))

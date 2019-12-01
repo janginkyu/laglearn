@@ -29,7 +29,7 @@ def run_simulation(plot=False):
         dxdt[1] = accel(np.array([t, x[0], x[1]]))
         return dxdt
 
-    ts0 = np.linspace(0.0, 15.0, 1000)
+    ts0 = np.linspace(0.0, 150.0, 10000)
     x0 = np.array([1.0, 0.0])
     xs = odeint(dx_dt, x0, ts0)
     xs = np.array(xs)
